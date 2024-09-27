@@ -1,0 +1,74 @@
+---
+title: "HW 2 Student"
+author: "Andy Ackerman"
+date: "10/17/2023"
+output: 
+  html_document:
+    number_sections: true
+---
+
+This homework is meant to illustrate the methods of classification algorithms as well as their potential pitfalls.  In class, we demonstrated K-Nearest-Neighbors using the `iris` dataset.  Today I will give you a different subset of this same data, and you will train a KNN classifier.  
+
+```{r, echo = FALSE}
+set.seed(123)
+library(class)
+
+df <- data(iris) 
+
+normal <-function(x) {
+  (x -min(x))/(max(x)-min(x))   
+}
+
+iris_norms <- as.data.frame(lapply(iris[,c(1,2,3,4)], normal))
+
+subset <- c(1:45, 58, 60:70, 82, 94, 110:150)
+iris_training <- iris_norms[subset,] 
+iris_testing <- iris_norms[-subset,] 
+
+iris_target_category <- iris[subset,5]
+iris_test_category <- iris[-subset,5]
+
+
+```
+
+#
+Above, I have given you a training-testing partition.  Train the KNN with $K = 5$ on the training data and use this to classify the 50 test observations.  Once you have classified the test observations, create a contingency table -- like we did in class -- to evaluate which observations your algorithm is misclassifying.   
+
+```{r}
+set.seed(123)
+#STUDENT INPUT
+
+pr <- knn(iris_training,iris_testing,cl=iris_target_category,k=5)
+#note, knn doesn't require training in the sense that other classifiers might.
+#the separation into classes here just is to denote which observations the algorithm has access to the class labels for and which it is trying to predict class labels
+tab <- table(pr,iris_test_category)
+tab
+accuracy <- function(x){
+  sum(diag(x)/(sum(rowSums(x)))) * 100
+}
+accuracy(tab)
+# only 78% accuracy achieved...
+
+summary(iris_target_category)
+summary(iris_test_category)
+
+```
+
+#
+
+Discuss your results.  If you have done this correctly, you should have a classification error rate that is roughly 20% higher than what we observed in class.  Why is this the case? In particular run a summary of the `iris_test_category` as well as `iris_target_category` and discuss how this plays a role in your answer.  
+
+*STUDENT INPUT* 
+
+# One reason why there was approximately 20% higher error in this model versus the one seen in previous classes is because in the class model, we had an 80-20 split of the data, meaning there was 120 observations in the training set and 30 in the testing set. In the model in HW 2, 100 observations were used in the training phase, leaving 50 test observations. This means approximately 67% of the data was paritioned for training while approximately 33 percent was used to test the model. Since the in-class model had more observations in the training phase, it had a more heterogenous group of data points to train on, reducing bias and increasing accuracy. Since it had a larger sample of flower's to compare and learn from, it would make less error during the testing phase. The HW 2 model had 20 less data points to learn from. Additionally, the HW 2 training and testing sets were not randomly sampled, therefore leading to more bias in the data and therefore higher sampling error. The summaries of the iris_test_category and iris_target_category also demonstrate why there was more error. There seems to be many more counts of setosa and virginica in the iris_train_category table versus the iris_test_category table, and a significantly larger count of versicolor in the iris_test_category table compared to the target one. This large difference between counts was not seen in the class summary tables.
+
+Choice of $K$ can also influence this classifier.  Why would choosing $K = 6$ not be advisable for this data? 
+
+*STUDENT INPUT*
+
+# Choosing a k of 6 would not be advisable since 6 is an even number. This means that there could be a potential tie in the classification, and there will not be a clear cut answer as to what species the flower we are trying to classify is. Amibiguity can cause bias in decision-making and when statisticians need to draw conclusions from data.
+
+Build a github repository to store your homework assignments.  Share the link in this file.  
+
+*STUDENT INPUT*
+
